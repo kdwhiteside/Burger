@@ -1,81 +1,44 @@
-var connection = require('../config/connection.js');
-
-function printQuestionMarks(num) {
-	var arr = [];
-
+var connection = require('./connection.js');
+function questionMarks (num) {
+	var array = [];
 	for (var i = 0; i < num; i++) {
-		arr.push('?');
+		array.push('?');
+		return arr.toString();
 	}
+};
+function objToSql(ob){
+  //column1=value, column2=value2,...
+  var arr = [];
 
-	return arr.toString();
-}
-
-function objToSql(ob) {
-	// column1=value, column2=value2,...
-	var arr = [];
-
-	for (var key in ob) {
-		if (ob.hasOwnProperty(key)) {
-			arr.push(key + '=' + ob[key]);
-		}
-	}
-
-	return arr.toString();
-}
-
+  for (var key in ob) {
+    arr.push(key + '=' + ob[key]);
+};
 var orm = {
-	all: function (tableInput, cb) {
-		var queryString = 'SELECT * FROM ' + tableInput + ';';
+	selectAll: function (cb) {
+		var queryString = 'SELECT * FROM burgers';
 		connection.query(queryString, function (err, result) {
 			if (err) throw err;
 			cb(result);
-		});
+		})
 	},
-		// vals is an array of values that we want to save to cols
-		// cols are the columns we want to insert the values into
-	create: function (table, cols, vals, cb) {
-		var queryString = 'INSERT INTO ' + table;
-
-		queryString = queryString + ' (';
-		queryString = queryString + cols.toString();
-		queryString = queryString + ') ';
-		queryString = queryString + 'VALUES (';
-		queryString = queryString + printQuestionMarks(vals.length);
-		queryString = queryString + ') ';
-
-		console.log(queryString);
-
-		connection.query(queryString, vals, function (err, result) {
-			if (err) throw err;
-			cb(result);
-		});
+	insertOne: function(cols, vals, cb) {
+		var queryString = 'INSERT INTO burgers (' + cols.toString() + ') VALUES (' + questionMarks(vals.length) + ') ';
+		connection.query(queryString, vals, function(err, result) {
+        if (err) throw err;
+        cb(result);
+      });
 	},
-		// objColVals would be the columns and values that you want to update
-		// an example of objColVals would be {name: panther, sleepy: true}
-	update: function (table, objColVals, condition, cb) {
-		var queryString = 'UPDATE ' + table;
+	update: function(table, objColVals, condition, cb) {
+      var queryString = 'UPDATE ' + table;
 
-		queryString = queryString + ' SET ';
-		queryString = queryString + objToSql(objColVals);
-		queryString = queryString + ' WHERE ';
-		queryString = queryString + condition;
+      queryString = queryString + ' SET ' + objToSql(objColVals) + ' WHERE ' + condition;
 
-		console.log(queryString);
-		connection.query(queryString, function (err, result) {
-			if (err) throw err;
-			cb(result);
-		});
-	},
-	delete: function (table, condition, cb) {
-		var queryString = 'DELETE FROM ' + table;
-		queryString = queryString + ' WHERE ';
-		queryString = queryString + condition;
-
-		connection.query(queryString, function (err, result) {
-			if (err) throw err;
-			cb(result);
-		});
-	}
+      console.log(queryString)
+      connection.query(queryString, function(err, result) {
+        if (err) throw err;
+        cb(result);
+      });
+    }
 };
 
 module.exports = orm;
