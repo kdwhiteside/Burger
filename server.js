@@ -24,7 +24,7 @@ app.use('/', routes);
 app.use('/update', routes);
 app.use('/create', routes);
 
-var port = 3000;
+var port = process.env.PORT || 3000;
 app.listen(port);
 
 console.log(module.exports)
